@@ -46,6 +46,7 @@ locals {
       enforce_admins                  = null
       require_conversation_resolution = null
       require_signed_commits          = null
+      required_status_contexts        = {}
       required_status_checks          = {}
       required_pull_request_reviews   = {}
       restrictions                    = {}
@@ -57,6 +58,7 @@ locals {
     length(keys(b.required_status_checks)) > 0 ? [
       merge({
         strict = null
+        contexts = []
         checks = []
     }, b.required_status_checks)] : []
   ]
@@ -259,8 +261,9 @@ resource "github_branch_protection_v3" "branch_protection" {
     for_each = local.required_status_checks[count.index]
 
     content {
-      strict = required_status_checks.value.strict
-      checks = required_status_checks.value.checks
+      strict   = required_status_checks.value.strict
+      contexts = required_status_checks.value.contexts
+      checks   = required_status_checks.value.checks
     }
   }
 
