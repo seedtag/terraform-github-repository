@@ -226,8 +226,8 @@ resource "github_branch_protection" "branch_protection" {
     for_each = try([var.branch_protections_v4[each.value].required_status_checks], [])
 
     content {
-      strict = try(required_status_checks.value.strict, false)
-      checks = try(required_status_checks.value.checks, [])
+      strict   = try(required_status_checks.value.strict, false)
+      contexts = try(required_status_checks.value.checks, [])
     }
   }
 }
