@@ -141,6 +141,7 @@ resource "github_repository" "repository" {
       license_template,
       gitignore_template,
       template,
+      pages,
     ]
   }
 }
