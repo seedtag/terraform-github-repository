@@ -28,6 +28,11 @@ locals {
   template               = var.template == null ? [] : [var.template]
   issue_labels_create    = var.issue_labels_create == null ? lookup(var.defaults, "issue_labels_create", local.issue_labels_create_computed) : var.issue_labels_create
 
+  squash_merge_commit_title   = var.squash_merge_commit_title == null ? try(var.defaults.squash_merge_commit_title, "COMMIT_OR_PR_TITLE") : var.squash_merge_commit_title
+  squash_merge_commit_message = var.squash_merge_commit_message == null ? try(var.defaults.squash_merge_commit_message, "COMMIT_MESSAGES") : var.squash_merge_commit_message
+  merge_commit_title          = var.merge_commit_title == null ? try(var.defaults.merge_commit_title, "MERGE_MESSAGE") : var.merge_commit_title
+  merge_commit_message        = var.merge_commit_message == null ? try(var.merge_commit_message, "PR_TITLE") : var.merge_commit_message
+
   issue_labels_create_computed = local.has_issues || length(var.issue_labels) > 0
 
   # for readability
@@ -36,7 +41,8 @@ locals {
 
   issue_labels_merge_with_github_labels = local.gh_labels
   # Per default, GitHub activates vulnerability  alerts for public repositories and disables it for private repositories
-  vulnerability_alerts = var.vulnerability_alerts != null ? var.vulnerability_alerts : local.private ? false : true
+  vulnerability_alerts                    = var.vulnerability_alerts != null ? var.vulnerability_alerts : local.private ? false : true
+  ignore_vulnerability_alerts_during_read = var.ignore_vulnerability_alerts_during_read == null ? try(var.defaults.ignore_vulnerability_alerts_during_read, null) : var.ignore_vulnerability_alerts_during_read
 }
 
 locals {
@@ -111,6 +117,11 @@ resource "github_repository" "repository" {
 
   archive_on_destroy   = var.archive_on_destroy
   vulnerability_alerts = local.vulnerability_alerts
+
+  squash_merge_commit_title   = local.squash_merge_commit_title
+  squash_merge_commit_message = local.squash_merge_commit_message
+  merge_commit_title          = local.merge_commit_title
+  merge_commit_message        = local.merge_commit_message
 
   dynamic "template" {
     for_each = local.template
